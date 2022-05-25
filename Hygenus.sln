@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32505.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hygenus", "Hygenus\Hygenus.csproj", "{A24098B3-97F0-48CD-A68A-2001539C6686}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{ABF9E5ED-8F60-4AC2-AA11-B577A6670525}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A24098B3-97F0-48CD-A68A-2001539C6686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A24098B3-97F0-48CD-A68A-2001539C6686}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A24098B3-97F0-48CD-A68A-2001539C6686}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A24098B3-97F0-48CD-A68A-2001539C6686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABF9E5ED-8F60-4AC2-AA11-B577A6670525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABF9E5ED-8F60-4AC2-AA11-B577A6670525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABF9E5ED-8F60-4AC2-AA11-B577A6670525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABF9E5ED-8F60-4AC2-AA11-B577A6670525}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3FA2141-C548-4D5F-A4FB-17DB022455C1}
+	EndGlobalSection
+EndGlobal
