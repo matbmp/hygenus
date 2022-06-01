@@ -8,14 +8,14 @@ namespace Engine
 {
     public class PolygonColliderRenderer : Component, IRenderable
     {
-        PolygonCollider polygonCollider;
-        VertexPosition[] renderVertices;
+        protected PolygonCollider polygonCollider;
+        protected VertexPosition[] renderVertices;
         public PolygonColliderRenderer(PolygonCollider polygon)
         {
             this.polygonCollider = polygon;
             renderVertices = new VertexPosition[polygon.polygon.Points.Length];
         }
-        public void Render(HyperColorEffect effect)
+        public virtual void Render(HyperColorEffect effect)
         {
             effect.ObjectTranslation = Vector3.Zero;
             effect.ObjectRotation = Quaternion.Identity;
@@ -25,7 +25,7 @@ namespace Engine
             {
                 renderVertices[i] = new VertexPosition(new Vector3(polygonCollider.WorldPoints[PolygonRenderer.stripIndex(i, polygonCollider.WorldPoints.Length)], 0.0F));
             }
-            effect.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, renderVertices, 0, renderVertices.Length-3);
+            effect.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, renderVertices, 0, 1);
         }
     }
 }

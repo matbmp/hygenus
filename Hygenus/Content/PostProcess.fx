@@ -11,6 +11,7 @@
 // global object/variables
 Texture2D SpriteTexture;
 float K;
+float PK;
 
 //	This is the sampler object that that will be used to sample the texture and return
 //	back the color information about a particular pixel.  This is a sampler2D object,
@@ -52,9 +53,9 @@ float2 PoincareToKlein(float2 p)
 float4 HyperbolicTransformation(TransformPixelInput p) : COLOR0
 {
     //return tex2D(SpriteTextureSampler, (p.TexCoord));
-    float2 poincare = (p.TexCoord - 0.5) * 2.0;
-    float area = step(dot(poincare, poincare), 0.85);
-    float2 klein = (PoincareToKlein(poincare) / 2.0) + 0.5;
+    float2 poincare = (p.TexCoord - 0.5) * 2.0 * PK;
+    float area = step(dot(poincare, poincare), 0.99);
+    float2 klein = (PoincareToKlein(poincare) / (2.0)) + 0.5;
     
     return tex2D(SpriteTextureSampler, klein)*area;
 }

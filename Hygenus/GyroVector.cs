@@ -8,14 +8,20 @@ using Microsoft.Xna.Framework;
 
 namespace Hygenus
 {
+    /// <summary>
+    /// Klasa implementująca żyrowektory patrz - Analytic Hyperbolic Geometry ~ Abraham A. Ungar
+    /// </summary>
     [DataContract]
+    
     public class GyroVector
     {
         public static GyroVector IDENTITY = new GyroVector(0, 0, 0);
         public static float K = HyperMath.K;
 
+        // Pozycja żyrowektora
         [DataMember]
         public Vector3 vec;
+        // Rotacja żyrowekotora na skutek holonomii
         [DataMember]
         public Quaternion gyr = Quaternion.Identity;
 
@@ -62,11 +68,7 @@ namespace Hygenus
         {
             
             HyperMath.MobiusAddGyr(gv1.vec, Vector3.Transform(gv2.vec, Quaternion.Inverse(gv1.gyr)), out Vector3 newVec, out Quaternion newGyr);
-            return new GyroVector(newVec, gv2.gyr * gv1.gyr * newGyr);
-            //Vector3D newVec = MobiusAddition(gv1.vec, rotateVector(QuaternionD.Inverse(gv1.gyr), gv2.vec));
-            //QuaternionD newGyr = MobiusGyr(gv1.vec, rotateVector(QuaternionD.Inverse(gv1.gyr), gv2.vec));
-            //newGyr = QuaternionD.identity;
-            //return new GyroVectorD(newVec, gv2.gyr * gv1.gyr * newGyr);
+            return new GyroVector(newVec, gv2.gyr * gv1.gyr * newGyr);;
         }
 
         public static GyroVector operator *(GyroVector a, float r)
@@ -288,10 +290,6 @@ namespace Hygenus
         {
             MobiusAddGyr(gv1.vec, QuaternionD.Inverse(gv1.gyr) * gv2.vec, out Vector3D newVec, out QuaternionD newGyr);
             return new GyroVectorD(newVec, gv2.gyr * gv1.gyr * newGyr);
-            //Vector3D newVec = MobiusAddition(gv1.vec, rotateVector(QuaternionD.Inverse(gv1.gyr), gv2.vec));
-            //QuaternionD newGyr = MobiusGyr(gv1.vec, rotateVector(QuaternionD.Inverse(gv1.gyr), gv2.vec));
-            //newGyr = QuaternionD.identity;
-            //return new GyroVectorD(newVec, gv2.gyr * gv1.gyr * newGyr);
         }
         public static void MobiusAddGyrUnnorm(Vector3D a, Vector3D b, out Vector3D sum, out QuaternionD gyr)
         {
@@ -319,20 +317,6 @@ namespace Hygenus
               + (s * s - Vector3D.Dot(u, u)) * v
               + 2.0f * s * Vector3D.Cross(u, v);
         }
-        public static Vector3D MobiusAddition(Vector3D a, Vector3D b)
-        {
-            Vector3D c = (-K) * Vector3D.Cross(a, b);
-            double d = 1.0f - (-K) * Vector3D.Dot(a, b);
-            Vector3D t = a + b;
-            return (t * d + Vector3D.Cross(c, t)) / (d * d + c.sqrMagnitude);
-            // EQUIVALENT
-            //return (((1 + (2 * K * Vector3D.Dot(a, b)) + K * Vector3D.Dot(b, b)) * a + (1 - K * Vector3D.Dot(a, a)) * b)
-            //    / (1 + 2 * K * Vector3D.Dot(a, b) + K * K * Vector3D.Dot(a, a) * Vector3D.Dot(b, b)));
-        }
-        public static GyroVectorD simult(GyroVectorD a, float r)
-        {
-            return new GyroVectorD(a.vec * r);
-        }
         public static GyroVectorD operator *(GyroVectorD a, float r)
         {
             float l = (float)a.Length();
@@ -359,27 +343,6 @@ namespace Hygenus
         {
             return rotated(Quaternion.CreateFromYawPitchRoll(0.0F, 0.0F, phi));
         }
-
-
-        public static float PythagoreanLength(GyroVectorD a, GyroVectorD b)
-        {
-            return (float)Math.Sqrt((a.normSq() + b.normSq()) / (1 + a.normSq() * b.normSq()));
-        }
-        //3D Möbius gyration
-        public static QuaternionD MobiusGyr(Vector3D a, Vector3D b)
-        {
-            //We're actually doing this operation:
-            //  Quaternion.AngleAxis(180.0f, MobiusAdd(a, b)) * Quaternion.AngleAxis(180.0f, a + b);
-            //But the precision is better (and faster) by doing the way below:
-            Vector3D c = K * Vector3D.Cross(a, b);
-            double d = 1.0f - K * Vector3D.Dot(a, b);
-            QuaternionD q = new QuaternionD(c.X, c.Y, c.Z, d);
-            q.Normalize();
-            return q;
-        }
-
-
-
         public double normSq()
         {
             return this * this;
@@ -387,18 +350,6 @@ namespace Hygenus
         public float Length()
         {
             return (float)Math.Sqrt(this * this);
-        }
-        public GyroVectorD Normalized()
-        {
-            return this / Length();
-        }
-        public static double cosine(GyroVectorD a, GyroVectorD b)
-        {
-            return (a * b) / (a.Length() * b.Length());
-        }
-        public GyroVectorD Copy()
-        {
-            return new GyroVectorD(vec.X, vec.Y, vec.Z);
         }
 
     }

@@ -11,24 +11,26 @@ namespace Engine
         private SpriteBatch renderTargetSpriteBatch;
         private RenderTarget2D renderTarget;
         private GraphicsDevice graphics;
+        private Rectangle output;
 
         // only one pass per effect supported
-        private HyperColorEffect RenderEffect;
-        public Effect PostProcessEffect { private get;  set; }
+        public HyperColorEffect RenderEffect;
+        public Effect PostProcessEffect { get;  set; }
 
-        public Renderer(GraphicsDevice graphics, HyperColorEffect renderEffect, int superResolution = 3)
+        public Renderer(GraphicsDevice graphics, HyperColorEffect renderEffect, Rectangle output, int superResolution = 2)
         {
             this.graphics = graphics;
             RenderEffect = renderEffect;
             renderTargetSpriteBatch = new SpriteBatch(graphics);
+            this.output = output;
             setSuperResolution(3);
         }
 
         public void setSuperResolution(int superResolution)
         {
             renderTarget = new RenderTarget2D(graphics,
-                                               graphics.PresentationParameters.BackBufferWidth * superResolution,
-                                               graphics.PresentationParameters.BackBufferHeight * superResolution,
+                                               output.Width * superResolution,
+                                               output.Height * superResolution,
                                                false,
                                                graphics.PresentationParameters.BackBufferFormat,
                                                DepthFormat.Depth24);
@@ -54,7 +56,7 @@ namespace Engine
                 PostProcessEffect.CurrentTechnique.Passes[0].Apply();
                 graphics.SetRenderTarget(null);
                 renderTargetSpriteBatch.Begin(effect: PostProcessEffect);
-                renderTargetSpriteBatch.Draw(renderTarget, graphics.PresentationParameters.Bounds, Color.White);
+                renderTargetSpriteBatch.Draw(renderTarget, output, Color.White);
                 renderTargetSpriteBatch.End();
             }
         }

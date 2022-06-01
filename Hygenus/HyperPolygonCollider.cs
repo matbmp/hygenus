@@ -8,20 +8,24 @@ namespace Hygenus
 {
     public class HyperPolygonCollider : PolygonCollider
     {
-        public HyperPolygonCollider(Vector2[] points) : base(points)
+        public HyperPolygonCollider()
+        {
+
+        }
+        public HyperPolygonCollider(params Vector2[] points) : base(points)
         {
         }
         public override void Update()
         {
+            UpdateWorldTransformation();
             Vector2[] originalPoints = polygon.Points;
-            GyroVector gv = new GyroVector(transformation.Translation) + new GyroVector(velocity);
-            transformation.Translation = new Vector2(gv.vec.X, gv.vec.Y);
-            transformation.Rotation *= Quaternion.CreateFromAxisAngle(Vector3.Backward, angularVelocity);
+            GyroVector gv, gv2;
+            gv = new GyroVector(new Vector3(WorldTransformation.Translation, 0.0F), WorldTransformation.Gyration * WorldTransformation.Rotation);
             for (int i = 0; i < originalPoints.Length; i++)
             {
-                gv = new GyroVector(transformation.Translation) + new GyroVector(Vector2.Transform(originalPoints[i], Quaternion.Inverse(transformation.Rotation)));
-                WorldPoints[i] = new Vector2(gv.vec.X, gv.vec.Y);
-                WorldPoints[i] = GyroVector.PoincareToKlein(WorldPoints[i]);
+                gv2 = gv + new GyroVector(originalPoints[i] * localTransformation.Scale);
+                WorldPoints[i] = new Vector2(gv2.vec.X, gv2.vec.Y);
+                WorldPoints[i] = GyroVector.PoincareToKlein(WorldPoints[i]) * 1.0F;
             }
             for (int i = 0; i < WorldPoints.Length; i++)
             {
@@ -29,6 +33,15 @@ namespace Hygenus
                 WorldEdgeNormals[i] = new Vector2(face.Y, -face.X);
                 WorldEdgeNormals[i].Normalize();
             }
+        }
+        public override void OnAddedToEntity()
+        {
+            
+        }
+
+        public override void ApplyImpulse(Vector2 impulse, Vector2 contactVector)
+        {
+            Entity.ApplyImpulse2(impulse, contactVector);
         }
     }
 }

@@ -72,6 +72,15 @@ namespace Hygenus
             //    / (1 + 2 * K * Vector3D.Dot(a, b) + K * K * Vector3D.Dot(a, a) * Vector3D.Dot(b, b)));
         }
 
+        public static float MobiusMultiply(float x, float r)
+        {
+            if (x == 0 || r == 0) return x;
+            float plus = (float)Math.Pow((1 - K * x), r);
+            float minus = (float)Math.Pow((1 + K * x), r);
+            float m = (-K * ((plus - minus) / (plus + minus)) / x);
+            return (x * m);
+        }
+
         public static float Cross(Vector2 a, Vector2 b)
         {
             return a.X * b.Y - a.Y * b.X;

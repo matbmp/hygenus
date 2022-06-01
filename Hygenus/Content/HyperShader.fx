@@ -17,8 +17,10 @@ float3 cameraTranslation;
 float4 cameraRotation;
 float3 objectTranslation;
 float4 objectRotation;
+float3 objectScale;
 float4 color;
 float K;
+float PK;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -57,12 +59,26 @@ float4 mobiusAddition(float4 b, float3 a)
 };
 
 
+float3 mobiusMultiplication(float a, float r)
+{
+    float l = length(a);
+    //if (r == 0 || l == 0) return float3(0, 0, 0);
+    float plus = pow((1 - K * l), r);
+    float minus = pow((1 + K * l), r);
+    float m = (-K * ((plus - minus) / (plus + minus)) / l);
+    return float(a * m);
+}
+
+
+
 PixelInput VertexShaderLogic(VertexInput v)
 {
     PixelInput output = (PixelInput) 0;
-    float4 p = mobiusAddition(float4(qtransform(objectRotation, v.Position), 0.0), objectTranslation);
+    float3 pos = v.Position;
+    pos.xy *= objectScale.xy;
+    float4 p = mobiusAddition(float4(qtransform(objectRotation, pos), 0.0), objectTranslation);
     float3 pp = qtransform(cameraRotation, mobiusAddition(p, cameraTranslation).xyz);
-    pp = PoincareToKlein(pp);
+    pp = PoincareToKlein(pp * PK);
     float4 transformed = float4(pp, v.Position.w);
     
     output.Position = mul(transformed, viewProjection);

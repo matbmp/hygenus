@@ -1,44 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace Engine
 {
-    public class PolygonCollider : Component, IUpdatable
+    [DataContract]
+    public class PolygonCollider : Component, IUpdatable, IBinarySerializable
     {
-
+        [DataMember]
         public Polygon polygon;
-        public Transformation transformation;
-        public Vector2 velocity;
-        public float angularVelocity;
+        [DataMember]
+        private Transformation worldTransformation = new Transformation();
+        public Transformation WorldTransformation { get => worldTransformation; }
+        [DataMember]
+        public bool isStatic { get; set; }
 
         public Vector2[] WorldPoints;
         protected Vector2[] WorldEdgeNormals;
 
 
-        public PolygonCollider(Vector2[] points)
+        public PolygonCollider()
+        {
+
+        }
+        public PolygonCollider(Vector2[] points) : base()
         {
             WorldPoints = new Vector2[points.Length];
             WorldEdgeNormals = new Vector2[points.Length];
-            transformation = new Transformation();
-            transformation.Translation = Polygon.RecenterPoints(points);
+            localTransformation = new Transformation();
+            localTransformation.Translation = Polygon.RecenterPoints(points);
             polygon = new Polygon(points);
+            isStatic = false;
         }
 
         public virtual void Update()
         {
+            UpdateWorldTransformation();
             Vector2[] originalPoints = polygon.Points;
             for(int i = 0; i < originalPoints.Length; i++)
             {
-                WorldPoints[i] = transformation.Translation + Vector2.Transform(originalPoints[i], transformation.Rotation);
+                WorldPoints[i] = localTransformation.Translation + Vector2.Transform(originalPoints[i], localTransformation.Rotation);
             }
         }
-
-        public void ApplyImpulse(Vector2 impulse, Vector2 contactVector)
+        protected void UpdateWorldTransformation()
         {
-            velocity +=  impulse;
-            angularVelocity += Math2d.Cross(contactVector, impulse);
+            Transformation t = Entity.scene.Transformer.Combine(Entity.transformation, localTransformation);
+            WorldTransformation.Translation = t.Translation;
+            WorldTransformation.Rotation = t.Rotation;
+            WorldTransformation.Gyration = t.Gyration;
+        }
+
+        public virtual void ApplyImpulse(Vector2 impulse, Vector2 contactVector)
+        {
+            Entity.ApplyImpulse(impulse, contactVector);
         }
 
         public virtual void OnCollidedWith(PolygonCollider other)
@@ -90,7 +107,7 @@ namespace Engine
             v2 = a.WorldPoints[(aEdge + 1) % a.WorldPoints.Length];
             Vector2 sidePlaneNormal = (v2 - v1);
             sidePlaneNormal.Normalize();
-            Vector2 refFaceNormal = a.WorldEdgeNormals[aEdge];
+            Vector2 refFaceNormal = new Vector2(sidePlaneNormal.Y, -sidePlaneNormal.X);
 
 
             float refC = Vector2.Dot(refFaceNormal, v1);
@@ -98,20 +115,15 @@ namespace Engine
             float posSide = Vector2.Dot(sidePlaneNormal, v2);
 
 
-            // Clip incident face to reference face side planes
             if (Clip(-sidePlaneNormal, negSide, penetratingEdge) < 2)
-                return; // Due to floating point error, possible to not have required points
+                return;
 
             if (Clip(sidePlaneNormal, posSide, penetratingEdge) < 2)
-                return; // Due to floating point error, possible to not have required points
-
-            // Flip
-            //m.normal = flip ? -refFaceNormal : refFaceNormal;
+                return;
 
             float penetration;
             Vector2[] contacts = new Vector2[2];
-            // Keep points behind reference face
-            int cp = 0; // clipped points behind reference face
+            int cp = 0;
             float separation = Vector2.Dot(refFaceNormal, penetratingEdge[0]) - refC;
             if (separation <= 0.0f)
             {
@@ -128,13 +140,13 @@ namespace Engine
 
                 penetration += -separation;
 
-                // Average penetration
                 penetration /= cp;
             }
             if (contacts[0] != null || contacts[1] != null)
-            result = new CollisionResult(contacts, flip ? -refFaceNormal:refFaceNormal, penetration, a, b);
+            result = new CollisionResult(contacts, refFaceNormal, penetration, a, b);
 
         }
+
         private int SupportPointIndex(Vector2 direction)
         {
             int best = 0;
@@ -204,6 +216,26 @@ namespace Engine
                 throw new Exception("sp = 3");
             }
             return sp;
+        }
+
+        [OnDeserialized]
+        private void onDeserialized(StreamingContext c)
+        {
+            WorldPoints = new Vector2[polygon.Points.Length];
+            WorldEdgeNormals = new Vector2[polygon.Points.Length];
+        }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            polygon.Serialize(writer);
+            worldTransformation.Serialize(writer);
+            writer.Write(isStatic);
+        }
+        public void Deserialize(BinaryReader reader)
+        {
+            polygon.Deserialize(reader);
+            worldTransformation.Deserialize(reader);
+            isStatic = reader.ReadBoolean();
         }
     }
 }

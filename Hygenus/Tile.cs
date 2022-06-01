@@ -88,7 +88,11 @@ namespace Hygenus
             foreach (GyroVector v in result)
             {
                 float cc = (float)rand.NextDouble();
-                tiles.Add(new PolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), v.gyr), p, new Color(cc, cc, cc, 1.0F)));
+                tiles.Add(new PolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), (v.gyr)), p, new Color((uint)rand.Next())));
+
+               
+
+                //tiles.Add(new PolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), (v.gyr)), p, new Color(cc, cc, cc, 1.0F)));
             }
             return tiles;
         }

@@ -14,6 +14,7 @@ namespace Engine
         public Quaternion CameraRotation { set { this.Parameters["cameraRotation"].SetValue(value); } }
         public Vector3 ObjectTranslation { set { this.Parameters["objectTranslation"].SetValue(value); } }
         public Quaternion ObjectRotation { set { this.Parameters["objectRotation"].SetValue(value); } }
+        public Vector3 ObjectScale { set { this.Parameters["objectScale"].SetValue(value); } }
         public float K { set { this.Parameters["K"].SetValue(value); } }
 
         public HyperColorEffect(Effect cloneSource) : base(cloneSource)

@@ -1,21 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace Engine
 {
+    [DataContract]
     public class Polygon
     {
-        public Vector2[] Points;
-
+        // punkty wielokąta - środekiem wielokąta musi być punkt (0,0)
+        [DataMember]
+        public Vector2[] Points { get; set; }
         public Polygon(Vector2[] originalPoints)
         {
             Points = new Vector2[originalPoints.Length];
             Array.Copy(originalPoints, 0, Points, 0, originalPoints.Length);
         }
 
-        public static Vector2 FindCenter(Vector2[] polygonPoints)
+
+        /// <summary>
+        /// Przesuwa punkty z tablicy tak, aby środek wielokąta znajdował się w punkcie(0, 0)
+        /// </summary>
+        /// <param name="polygonPoints">Punkty wielokąta</param>
+        /// <returns>Dokonane przesunięcie</returns>
+        public static Vector2 RecenterPoints(Vector2[] polygonPoints)
+        {
+            Vector2 center = FindCenter(polygonPoints);
+            for(int i = 0; i < polygonPoints.Length; i++)
+            {
+                polygonPoints[i] -= center;
+            }
+            return center;
+        }
+        private static Vector2 FindCenter(Vector2[] polygonPoints)
         {
             Vector2 off = polygonPoints[0];
             float twicearea = 0;
@@ -36,14 +55,15 @@ namespace Engine
             f = twicearea * 3;
             return new Vector2(x / f + off.X, y / f + off.Y);
         }
-        public static Vector2 RecenterPoints(Vector2[] polygonPoints)
+
+        public void Serialize(BinaryWriter writer)
         {
-            Vector2 center = FindCenter(polygonPoints);
-            for(int i = 0; i < polygonPoints.Length; i++)
-            {
-                polygonPoints[i] -= center;
-            }
-            return center;
+            SerializationHelp.SerializeArray(writer, Points, SerializationHelp.Serialize);
+        }
+        public void Deserialize(BinaryReader reader)
+        {
+            SerializationHelp.DeserializeArray(reader, out Vector2[] P, SerializationHelp.Deserialize);
+            Points = P;
         }
     }
 }

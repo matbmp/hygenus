@@ -5,17 +5,20 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.ImGui.Standard;
 using Engine;
+using System;
 
 namespace Hygenus
 {
     public class Hygenus : Game
     {
         private GraphicsDeviceManager graphics;
-        public ShaderParameters shaderParameters;
+        public GameDataManager gameDataManager;
         
 
-        private Scene scene;
+        public Scene scene;
+        public PlayerEntity player;
 
+        private bool isLevelEditor = false;
         private GuiScreens guiScreens;
         public ImGUIRenderer GuiRenderer; //This is the ImGuiRenderer
 
@@ -24,29 +27,41 @@ namespace Hygenus
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+            gameDataManager = new GameDataManager();
         }
 
         protected override void Initialize() {
             base.Initialize();
 
-            graphics.PreferredBackBufferWidth = 1000;
-            graphics.PreferredBackBufferHeight = 1000;
+            
+            
+            graphics.PreferredBackBufferWidth = 960;
+            graphics.PreferredBackBufferHeight = 960;
+            if (isLevelEditor) graphics.PreferredBackBufferWidth += (1440 - 960);
             graphics.ApplyChanges();
 
             HyperColorEffect HyperShader = new HyperColorEffect(Content.Load<Effect>(@"HyperShader"));
             Effect PostProcessShader = Content.Load<Effect>(@"PostProcess");
-            Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, -3), Vector3.Zero, Vector3.Up);
-            Matrix projection = Matrix.CreateOrthographic(2, 2, 1.0F, 100.0F);
+
+            float d = 1F;
+            Matrix view = Matrix.CreateLookAt(new Vector3(0, 0, -d), Vector3.Zero, Vector3.Up);
+            Matrix projection = Matrix.CreateOrthographic(2 , 2, 1.0F, 100.0F);
 
             HyperShader.ViewProjection = view * projection;
             HyperShader.K = HyperMath.K;
             HyperShader.Color = Color.Blue.ToVector4();
             if (PostProcessShader.Parameters["K"] != null)
                 PostProcessShader.Parameters["K"].SetValue(HyperMath.K);
+            if (PostProcessShader.Parameters["PK"] != null)
+                PostProcessShader.Parameters["PK"].SetValue(1F);
+            if (HyperShader.Parameters["PK"] != null)
+                HyperShader.Parameters["PK"].SetValue(1F);
 
             scene = new Scene();
-            scene.Renderer = new Renderer(GraphicsDevice, HyperShader);
+            scene.DynamicsProvider = new HyperbolicDynamicsProvider();
+            scene.CollisionResolution = HyperbolicCollisionResolver.Resolve;
+            scene.Transformer = new HyperbolicTransformer();
+            scene.Renderer = new Renderer(GraphicsDevice, HyperShader, new Rectangle(isLevelEditor ? 400 : 0, 0, 960, 960));
             scene.Renderer.PostProcessEffect = PostProcessShader;
 
 
@@ -58,50 +73,42 @@ namespace Hygenus
             }
             scene.addEntity(background);
 
+            FinishLine finish = new FinishLine();
+            finish.transformation.Translation = new Vector2(0.0F, 0.4F);
+            scene.addEntity(finish);
+            player = new PlayerEntity();
+            scene.addEntity(player);
 
-            Entity e = new Entity();
-            PolygonCollider pc = new HyperPolygonCollider(Figures.Quad(0.2F, 0.2F));
-            pc.velocity = new Vector2(0.003F, 0.0F);
-            pc.angularVelocity = 0.01F;
-            e.AddComponent(pc);
-            e.AddComponent(new PolygonRenderer(pc));
-            //e.AddComponent(new PolygonColliderRenderer(pc));
-            scene.addEntity(e);
-
-            Entity e2 = new Entity();
-            pc = new HyperPolygonCollider(Figures.Quad(0.2F, 0.7F));
-            pc.transformation.Translation = new Vector2(0.5F, 0.0F);
-            e2.AddComponent(pc);
-            e2.AddComponent(new PolygonRenderer(pc));
-            //e2.AddComponent(new PolygonColliderRenderer(pc));
-            scene.addEntity(e2);
-
-
-
+            
+            player.transformation.Gyration = Quaternion.CreateFromAxisAngle(Vector3.Forward, MathF.PI / 2);
+            player.transformation.Rotation = Quaternion.CreateFromAxisAngle(Vector3.Backward, MathF.PI / 2);
 
             GuiRenderer = new ImGUIRenderer(this).Initialize().RebuildFontAtlas();
             guiScreens = new GuiScreens(this, graphics, GuiRenderer);
+
+            if (isLevelEditor)
+            {
+                guiScreens.CurrentScreen = guiScreens.LevelEditor;
+            }
+            else
+            {
+                guiScreens.CurrentScreen = guiScreens.MainMenu;
+                scene.Pause = true;
+            }
+
+            
 
         }
         
         protected override void LoadContent()
         {
-            //background = new List<Tile>();//TileMap.createTiles(5, 7, renderer);
            
             
         }
 
         protected override void Update(GameTime gameTime)
         {
-
-            // TODO: Add your update logic here
-
-
             scene.Update();
-
-
-            //scene.Update();
-            
 
             base.Update(gameTime);
         }
@@ -110,10 +117,12 @@ namespace Hygenus
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            scene.Renderer.RenderEffect.CameraTranslation = new Vector3(-player.transformation.Translation, 0.0F);
+            scene.Renderer.RenderEffect.CameraRotation = Quaternion.Inverse(player.transformation.Gyration);
+
             scene.Render();
 
-            //GuiRenderer.BeginLayout(gameTime);
-            //GuiRenderer.EndLayout();
+            
             guiScreens.CurrentScreen(gameTime);
 
             base.Draw(gameTime);
