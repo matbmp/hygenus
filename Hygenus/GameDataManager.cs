@@ -9,8 +9,8 @@ namespace Hygenus
 {
     public class GameDataManager
     {
-        string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"levels\");
-
+        //string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"levels\");
+        string path = @"levels\";
         public Level getLevel(string name)
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Level),

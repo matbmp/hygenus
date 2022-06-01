@@ -12,6 +12,12 @@
   <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
+    <None Remove="levels\test" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="levels\test">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -31,8 +37,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="levels\" />
   </ItemGroup>
 </Project>
