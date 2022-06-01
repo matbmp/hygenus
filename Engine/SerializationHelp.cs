@@ -58,24 +58,5 @@ namespace Engine
                 arrayReader(reader, out array[i]);
             }
         }
-
-        public static void SerializeList<T>(BinaryWriter writer, List<T> collection) where T : IBinarySerializable
-        {
-            writer.Write(collection.Count);
-            foreach(T item in collection)
-            {
-                item.Serialize(writer);
-            }
-        }
-
-        public static void DeserializeList<T>(BinaryReader reader, out List<T> collection) where T : IBinarySerializable
-        {
-            int capacity = reader.ReadInt32();
-            collection = new List<T>(capacity);
-            for(int i = 0; i < capacity; i++)
-            {
-                collection[i].Deserialize(reader);
-            }
-        }
     }
 }

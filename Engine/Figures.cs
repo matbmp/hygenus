@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace Engine
 {
+    /// <summary>
+    /// Pomocnicza klasa do tworzenia wielokątów
+    /// </summary>
     public static class Figures
     {
         public static Vector2[] Quad(float width, float height)

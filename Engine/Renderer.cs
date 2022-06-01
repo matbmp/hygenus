@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa wykonująca renderowanie komponentów z sceny
+    /// </summary>
     public class Renderer
     {
         private SpriteBatch renderTargetSpriteBatch;
@@ -25,9 +28,14 @@ namespace Engine
             this.output = output;
             setSuperResolution(3);
         }
-
+        /// <summary>
+        /// Ustawienie większej pośredniej rozdzielczości renderowania niż docelowa
+        /// </summary>
+        /// <param name="superResolution">mnożnik rozdielczości</param>
+        /// <exception cref="ArgumentException"></exception>
         public void setSuperResolution(int superResolution)
         {
+            if (superResolution <= 0) throw new ArgumentException("mnożnik rozdielczości musi być większy od 0");
             renderTarget = new RenderTarget2D(graphics,
                                                output.Width * superResolution,
                                                output.Height * superResolution,

@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 namespace Engine
 {
     [DataContract]
-    public class PolygonCollider : Component, IUpdatable, IBinarySerializable
+    public class PolygonCollider : Component, IUpdatable
     {
         [DataMember]
         public Polygon polygon;
@@ -223,19 +223,6 @@ namespace Engine
         {
             WorldPoints = new Vector2[polygon.Points.Length];
             WorldEdgeNormals = new Vector2[polygon.Points.Length];
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            polygon.Serialize(writer);
-            worldTransformation.Serialize(writer);
-            writer.Write(isStatic);
-        }
-        public void Deserialize(BinaryReader reader)
-        {
-            polygon.Deserialize(reader);
-            worldTransformation.Deserialize(reader);
-            isStatic = reader.ReadBoolean();
         }
     }
 }

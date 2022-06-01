@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa bazowa dla obiektów podczepianych pod Entity
+    /// </summary>
     [DataContract]
     [KnownType(typeof(PolygonCollider))]
     [KnownType(typeof(PolygonRenderer))]

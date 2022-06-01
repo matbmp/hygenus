@@ -7,6 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa której obiekty dodajemy do Scene, można do niej podczepić elementy które wymagają auktualizacji(Updatables)
+    /// oraz elementy wymagające wyświetlania na ekranie(Renderables).
+    /// </summary>
     [DataContract(IsReference = true)]
     public class Entity
     {

@@ -6,6 +6,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine
 {
+    /// <summary>
+    /// Shader hiperboliczny
+    /// TODO : przenieść z Engine do Hygenus
+    /// </summary>
     public class HyperColorEffect : Effect
     {
         public Matrix ViewProjection { set { this.Parameters["viewProjection"].SetValue(value); } }

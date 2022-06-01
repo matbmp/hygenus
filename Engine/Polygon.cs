@@ -7,6 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa przechowujące informacje o wielokącie ze środkiem w punkcie (0,0)
+    /// </summary>
     [DataContract]
     public class Polygon
     {
@@ -54,16 +57,6 @@ namespace Engine
 
             f = twicearea * 3;
             return new Vector2(x / f + off.X, y / f + off.Y);
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            SerializationHelp.SerializeArray(writer, Points, SerializationHelp.Serialize);
-        }
-        public void Deserialize(BinaryReader reader)
-        {
-            SerializationHelp.DeserializeArray(reader, out Vector2[] P, SerializationHelp.Deserialize);
-            Points = P;
         }
     }
 }

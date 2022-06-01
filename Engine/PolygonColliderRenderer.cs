@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa pomocnicza do debugowania fizyki
+    /// </summary>
     public class PolygonColliderRenderer : Component, IRenderable
     {
         protected PolygonCollider polygonCollider;

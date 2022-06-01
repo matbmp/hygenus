@@ -7,6 +7,11 @@ using static Engine.CollisionResult;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa do której można dodać komponenty, aby były aktualizowany z każdym krokiem gry i/lub rysowane z każdą klatką gry.
+    /// Posiada obiekty decydujące o dynamice ruchu, dodawaniu transformacji oraz reakcji na kolizje
+    /// Odpowiada za zarządzanie kolizjami
+    /// </summary>
     public class Scene
     {
         public CollisionResolution CollisionResolution { get; set; }

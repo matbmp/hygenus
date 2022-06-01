@@ -7,6 +7,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa rysująca wielokąt, jeżeli do konstruktora podano PolygonCollider, to localTransformation jest dzielone między
+    /// colliderem a nowo utworzonym rendererem
+    /// </summary>
     [DataContract]
     public class PolygonRenderer : Component, IRenderable
     {

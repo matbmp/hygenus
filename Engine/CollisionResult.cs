@@ -5,6 +5,9 @@ using Microsoft.Xna.Framework;
 
 namespace Engine
 {
+    /// <summary>
+    /// Klasa przechowująca informacje o zderzeniach fizycznych wraz z domyślnym sposobem reakcji na takie zdarzenia
+    /// </summary>
     public class CollisionResult
     {
         public delegate void CollisionResolution(CollisionResult collisionResult);
