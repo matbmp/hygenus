@@ -10,6 +10,7 @@ namespace Engine
     [DataContract]
     public class PolygonCollider : Component, IUpdatable
     {
+        public delegate void OnCollisionWith(PolygonCollider other);
         [DataMember]
         public Polygon polygon;
         [DataMember]
@@ -17,6 +18,10 @@ namespace Engine
         public Transformation WorldTransformation { get => worldTransformation; }
         [DataMember]
         public bool isStatic { get; set; }
+        [DataMember]
+        public bool collisionResolution = true;
+
+        public OnCollisionWith OnCollided;
 
         public Vector2[] WorldPoints;
         protected Vector2[] WorldEdgeNormals;
@@ -60,7 +65,8 @@ namespace Engine
 
         public virtual void OnCollidedWith(PolygonCollider other)
         {
-
+            if(OnCollided != null)
+            OnCollided(other);
         }
 
         public static void CheckCollision(PolygonCollider a, PolygonCollider b, out CollisionResult result)
@@ -142,7 +148,7 @@ namespace Engine
 
                 penetration /= cp;
             }
-            if (contacts[0] != null || contacts[1] != null)
+            if (penetration > 0 && (contacts[0] != Vector2.Zero || contacts[1] != Vector2.Zero))
             result = new CollisionResult(contacts, refFaceNormal, penetration, a, b);
 
         }

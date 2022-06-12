@@ -10,7 +10,8 @@ namespace Engine
     /// </summary>
     [DataContract]
     [KnownType(typeof(PolygonCollider))]
-    [KnownType(typeof(PolygonRenderer))]
+    [KnownType(typeof(ColoredPolygonRenderer))]
+    [KnownType(typeof(TexturedPolygonRenderer))]
     public abstract class Component
     {
         private static int id = 0;

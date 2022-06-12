@@ -15,36 +15,28 @@ namespace Hygenus
     
     public class GyroVector
     {
-        public static GyroVector IDENTITY = new GyroVector(0, 0, 0);
         public static float K = HyperMath.K;
 
         // Pozycja żyrowektora
         [DataMember]
-        public Vector3 vec;
-        // Rotacja żyrowekotora na skutek holonomii
+        public Vector2 vec;
+        // Rotacja żyrowekotora
         [DataMember]
         public Quaternion gyr = Quaternion.Identity;
 
-        public GyroVector(float x, float y, float z)
-        {
-            vec = new Vector3(x, y, z);
-        }
+
         public GyroVector(Vector2 vector)
         {
-            vec = new Vector3(vector.X, vector.Y, 0.0F);
+            vec = vector;
         }
-        public GyroVector(Vector3 v)
+        public GyroVector(float x, float y)
         {
-            vec = v;
+            vec = new Vector2(x, y);
         }
-        public GyroVector(Vector3 v, Quaternion q)
+        public GyroVector(Vector2 v, Quaternion q)
         {
             vec = v;
             gyr = q;
-        }
-        public static explicit operator Vector2(GyroVector gv)
-        {
-            return new Vector2(gv.vec.X, gv.vec.Y);
         }
         public static bool operator ==(GyroVector value1, GyroVector value2)
         {
@@ -57,7 +49,7 @@ namespace Hygenus
 
         public static GyroVector operator -(GyroVector gv)
         {
-            return new GyroVector(-Vector3.Transform(gv.vec, gv.gyr), Quaternion.Inverse(gv.gyr));
+            return new GyroVector(-Vector2.Transform(gv.vec, gv.gyr), Quaternion.Inverse(gv.gyr));
         }
         public static GyroVector operator -(GyroVector a, GyroVector b)
         {
@@ -66,58 +58,31 @@ namespace Hygenus
 
         public static GyroVector operator +(GyroVector gv1, GyroVector gv2)
         {
-            
-            HyperMath.MobiusAddGyr(gv1.vec, Vector3.Transform(gv2.vec, Quaternion.Inverse(gv1.gyr)), out Vector3 newVec, out Quaternion newGyr);
-            return new GyroVector(newVec, gv2.gyr * gv1.gyr * newGyr);;
+            Vector2 tmp = Vector2.Transform(gv2.vec, Quaternion.Inverse(gv1.gyr));
+            Vector2 resultVector = HyperMath.MobiusAddition(gv1.vec, tmp);
+            Quaternion resultGyr = HyperMath.Gyration(gv1.vec, tmp);
+            return new GyroVector(resultVector, gv2.gyr * gv1.gyr * resultGyr);
         }
 
         public static GyroVector operator *(GyroVector a, float r)
         {
             float l = (float)a.vec.Length();
-            if (r == 0 || l == 0) return new GyroVector(0.0F, 0.0F, 0.0F);
+            if (r == 0 || l == 0) return new GyroVector(0.0F, 0.0F);
             float plus = (float)Math.Pow((1 - K * l), r);
             float minus = (float)Math.Pow((1 + K * l), r);
             float m = (-K * ((plus - minus) / (plus + minus)) / l);
             return new GyroVector(a.vec * m);
         }
-        public static GyroVector operator /(GyroVector a, float r)
-        {
-            return (a * (1 / r));
-        }
 
         public GyroVector rotated(float phi)
         {
-            return new GyroVector(Vector3.Transform(vec, Quaternion.CreateFromYawPitchRoll(0.0F, 0.0F, phi)));
-        }
-
-
-        public static Vector3 KleinToPoincare(Vector3 p)
-        {
-            if (K == 0.0f) { return p; }
-            return p / (MathF.Sqrt(MathF.Max(0.0f, 1.0f + K * p.LengthSquared())) + 1.0f);
-        }
-        public static Vector2 KleinToPoincare(Vector2 p)
-        {
-            if (K == 0.0f) { return p; }
-            return p / (MathF.Sqrt(MathF.Max(0.0f, 1.0f + K * p.LengthSquared())) + 1.0f);
-        }
-        public static Vector3 PoincareToKlein(Vector3 p)
-        {
-            if (K == 0.0f) { return p; }
-            return p * 2.0f / (1.0f - K * p.LengthSquared());
-        }
-        public static Vector2 PoincareToKlein(Vector2 p)
-        {
-            if (K == 0.0f) { return p; }
-            return p * 2.0f / (1.0f - K * p.LengthSquared());
+            return new GyroVector(Vector2.Transform(vec, Quaternion.CreateFromYawPitchRoll(0.0F, 0.0F, phi)));
         }
     }
 
     public struct Vector3D
     {
         public Vector3D(double _x, double _y, double _z) { X = _x; Y = _y; Z = _z; }
-        public static readonly Vector3D zero = new Vector3D(0.0, 0.0, 0.0);
-        public static readonly Vector3D up = new Vector3D(0.0, 1.0, 0.0);
 
         public double sqrMagnitude
         {
@@ -249,12 +214,7 @@ namespace Hygenus
     }
     class GyroVectorD
     {
-        private static readonly float u = 0.01F;
-        public static GyroVectorD IDENTITY = new GyroVectorD(0, 0, 0);
-        public static GyroVectorD UNITX = new GyroVectorD(u, 0.0F, 0.0F);
-        public static GyroVectorD UNITY = new GyroVectorD(0.0F, u, 0.0F);
-        public static GyroVectorD UNITZ = new GyroVectorD(0.0F, 0.0F, u);
-        public static float K = 1.0F;
+        public static float K = -HyperMath.K;
         public Vector3D vec;
         public QuaternionD gyr = QuaternionD.identity;
 
@@ -282,7 +242,7 @@ namespace Hygenus
         }
         public static explicit operator GyroVector(GyroVectorD gv)
         {
-            return new GyroVector(new Vector3((float)gv.vec.X, (float)gv.vec.Y, (float)gv.vec.Z), new Quaternion((float)gv.gyr.X, (float)gv.gyr.Y, (float)gv.gyr.Z, (float)gv.gyr.W));
+            return new GyroVector(new Vector2((float)gv.vec.X, (float)gv.vec.Y), new Quaternion((float)gv.gyr.X, (float)gv.gyr.Y, (float)gv.gyr.Z, (float)gv.gyr.W));
         }
 
 
@@ -306,7 +266,7 @@ namespace Hygenus
         }
         public static Vector3D rotateVector(QuaternionD q, Vector3D v)
         {
-            // Extract the vector part of the quaternion
+
             Vector3D u = new Vector3D(q.X, q.Y, q.Z);
 
             // Extract the scalar part of the quaternion

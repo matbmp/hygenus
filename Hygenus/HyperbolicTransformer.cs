@@ -12,7 +12,7 @@ namespace Hygenus
         {
             Transformation result = new Transformation();
             GyroVector trans = new GyroVector(second.Translation);
-            GyroVector gv = new GyroVector(new Vector3(first.Translation, 0.0F), first.Gyration * first.Rotation) + trans;
+            GyroVector gv = new GyroVector(first.Translation, first.Gyration * first.Rotation) + trans;
             result.Translation = new Vector2(gv.vec.X, gv.vec.Y);
             result.Rotation = gv.gyr * second.Rotation;
             result.Gyration = second.Gyration;

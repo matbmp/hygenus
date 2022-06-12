@@ -20,12 +20,12 @@ namespace Hygenus
             UpdateWorldTransformation();
             Vector2[] originalPoints = polygon.Points;
             GyroVector gv, gv2;
-            gv = new GyroVector(new Vector3(WorldTransformation.Translation, 0.0F), WorldTransformation.Gyration * WorldTransformation.Rotation);
+            gv = new GyroVector(WorldTransformation.Translation, WorldTransformation.Gyration * WorldTransformation.Rotation);
             for (int i = 0; i < originalPoints.Length; i++)
             {
                 gv2 = gv + new GyroVector(originalPoints[i] * localTransformation.Scale);
                 WorldPoints[i] = new Vector2(gv2.vec.X, gv2.vec.Y);
-                WorldPoints[i] = GyroVector.PoincareToKlein(WorldPoints[i]) * 1.0F;
+                WorldPoints[i] = HyperMath.PoincareToKlein(WorldPoints[i]) * 1.0F;
             }
             for (int i = 0; i < WorldPoints.Length; i++)
             {

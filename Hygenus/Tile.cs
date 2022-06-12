@@ -9,40 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Hygenus
 {
-    internal class Tile
-    {
-        public VertexPositionColor[] vertices;
-        public Color color;
-
-        public Tile(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Color color)
-        {
-            this.color = color;
-            vertices = new VertexPositionColor[4];
-            vertices[0] = new VertexPositionColor(v1, color);
-            vertices[1] = new VertexPositionColor(v2, color);
-            vertices[2] = new VertexPositionColor(v4, color);
-            vertices[3] = new VertexPositionColor(v3, color);
-        }
-        public Tile translated(GyroVector t)
-        {
-            return new Tile((t + new GyroVector(vertices[0].Position)).vec,
-                (t + new GyroVector(vertices[1].Position)).vec,
-                (t + new GyroVector(vertices[2].Position)).vec,
-                (t + new GyroVector(vertices[3].Position)).vec,
-                color);
-        }
-        public void setColor(Color c)
-        {
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                vertices[i].Color = c;
-            }
-        }
-    }
-
     class TileMap
     {
-        public static List<PolygonRenderer> createTiles(int n, int m)
+        public static List<GyroVector> createTiles(int n, int m, out Polygon p)
         {
             int i, j, k;
             float q = (float)(Math.PI / 4);
@@ -54,7 +23,7 @@ namespace Hygenus
             GyroVectorD check;
             Queue<GyroVectorD> toCheck = new Queue<GyroVectorD>();
             List<GyroVectorD> done = new List<GyroVectorD>();
-            toCheck.Enqueue(GyroVectorD.IDENTITY);
+            toCheck.Enqueue(new GyroVectorD(0D, 0D, 0D));
             for (i = 0; i < m; i++)
             {
                 k = toCheck.Count;
@@ -75,26 +44,24 @@ namespace Hygenus
             }
 
             Random rand = new Random();
-            GyroVector gv = new GyroVector((float)rr, 0.0F, 0.0F);
-            List<PolygonRenderer> tiles = new List<PolygonRenderer>();
+            GyroVector gv = new GyroVector((float)rr, 0.0F);
+            List<ColoredPolygonRenderer> tiles = new List<ColoredPolygonRenderer>();
             Vector2[] tile = new Vector2[4];
-            Vector3 a = gv.rotated(q).vec, b = gv.rotated(3 * q).vec, c = gv.rotated(5 * q).vec, d = gv.rotated(7 * q).vec;
+            Vector2 a = gv.rotated(q).vec, b = gv.rotated(3 * q).vec, c = gv.rotated(5 * q).vec, d = gv.rotated(7 * q).vec;
             tile[0] = new Vector2(a.X, a.Y);
             tile[1] = new Vector2(b.X, b.Y);
             tile[2] = new Vector2(c.X, c.Y);
             tile[3] = new Vector2(d.X, d.Y);
-            Polygon p = new Polygon(tile);
+            p = new Polygon(tile);
 
+            /*
             foreach (GyroVector v in result)
             {
                 float cc = (float)rand.NextDouble();
-                tiles.Add(new PolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), (v.gyr)), p, new Color((uint)rand.Next())));
-
-               
-
-                //tiles.Add(new PolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), (v.gyr)), p, new Color(cc, cc, cc, 1.0F)));
+                tiles.Add(new ColoredPolygonRenderer(new Transformation(new Vector2(v.vec.X, v.vec.Y), (v.gyr)), p, new Color((uint)rand.Next())));
             }
-            return tiles;
+            */
+            return result;
         }
         private static bool tryAdd(List<GyroVectorD> l, GyroVectorD a)
         {

@@ -16,12 +16,29 @@ namespace Hygenus
             PolygonCollider penetrating = result.penetrating;
             Vector2 Normal = result.Normal;
             float penetration = result.penetration;
+
+            // poprawa wektora ormalnego, otrzymaliśmy wektor normalny w modelu Kleina, a potrzebujemy w modelu Poincare
+            if (contacts[0] != Vector2.Zero)
+            {
+                Vector2 KleinTouch = contacts[0] - Normal * penetration;
+                Vector2 sideDir = new Vector2(Normal.Y, -Normal.X);
+
+                Vector2 PoincareTouch1 = HyperMath.KleinToPoincare(KleinTouch + sideDir * penetration);
+                Vector2 PoincareTouch2 = HyperMath.KleinToPoincare(KleinTouch - sideDir * penetration);
+                Vector2 edge = PoincareTouch2 - PoincareTouch1;
+                Normal = new Vector2(edge.Y, -edge.X);
+                Normal.Normalize();
+            }
+            else return;
+            
+
             for (int i = 0; i < result.contacts.Length; i++)
             {
                 if (contacts[i] != null)
                 {
-                    Vector2 ra = contacts[i] - GyroVector.PoincareToKlein(penetrated.Entity.transformation.Translation);
-                    Vector2 rb = contacts[i] - GyroVector.PoincareToKlein(penetrating.Entity.transformation.Translation);
+                    
+                    Vector2 ra = contacts[i] - HyperMath.PoincareToKlein(penetrated.Entity.transformation.Translation);
+                    Vector2 rb = contacts[i] - HyperMath.PoincareToKlein(penetrating.Entity.transformation.Translation);
                     
 
                     // relative velocity
@@ -38,24 +55,18 @@ namespace Hygenus
                         throw new Exception("impulse scalar is NaN");
                     }
 
-                    Vector2 impulse = Normal * j;
-                    impulse *= -1.4F;
-                    impulse /= 1F;
-                    if(impulse.LengthSquared() > 0.001F)
-                    {
-
-                    }
+                    Vector2 impulse = Normal * 2.0F * (-j);
                     if(!penetrated.isStatic)
                     {
                         if (contactVel <= 0)
-                            penetrated.ApplyImpulse(Vector2.Transform(-impulse, Quaternion.Identity), ra);
+                            penetrated.ApplyImpulse(-impulse, ra);
                         penetrated.Entity.scene.DynamicsProvider.PositionalCorrection(penetrated.Entity.transformation, -Normal * penetration);
                     }
                     
                     if(!penetrating.isStatic)
                     {
                         if (contactVel <= 0)
-                            penetrating.ApplyImpulse(Vector2.Transform(impulse, Quaternion.Identity), rb);
+                            penetrating.ApplyImpulse(impulse, rb);
                         penetrating.Entity.scene.DynamicsProvider.PositionalCorrection(penetrating.Entity.transformation, Normal * penetration);
                     }
                 }

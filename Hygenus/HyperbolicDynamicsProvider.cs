@@ -15,7 +15,7 @@ namespace Hygenus
 
         public void ApplyVelocity(Transformation transformation, Vector2 velocity)
         {
-            GyroVector gv = new GyroVector(new Vector3(transformation.Translation, 0.0F), transformation.Gyration) + new GyroVector(velocity);
+            GyroVector gv = new GyroVector(transformation.Translation, transformation.Gyration) + new GyroVector(velocity);
             transformation.Translation = new Vector2(gv.vec.X, gv.vec.Y);
             transformation.Gyration = gv.gyr;
         }
@@ -28,6 +28,9 @@ namespace Hygenus
 
         public void PositionalCorrection(Transformation transformation, Vector2 impulse)
         {
+            //transformation.Translation = HyperMath.KleinToPoincare(HyperMath.PoincareToKlein(transformation.Translation) + impulse);
+
+            //ApplyVelocity(transformation, impulse);
             transformation.Translation += impulse;
         }
     }

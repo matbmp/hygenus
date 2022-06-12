@@ -35,21 +35,5 @@ namespace Engine
             this.Translation = translation;
             this.Rotation = Quaternion.Identity;
         }
-
-
-        public void Serialize(BinaryWriter writer)
-        {
-            SerializationHelp.Serialize(writer, Translation);
-            SerializationHelp.Serialize(writer, Rotation);
-            SerializationHelp.Serialize(writer, Gyration);
-            SerializationHelp.Serialize(writer, Scale);
-        }
-        public void Deserialize(BinaryReader reader)
-        {
-            SerializationHelp.Deserialize(reader, out Translation);
-            SerializationHelp.Deserialize(reader, out Rotation);
-            SerializationHelp.Deserialize(reader, out Gyration);
-            SerializationHelp.Deserialize(reader, out Scale);
-        }
     }
 }

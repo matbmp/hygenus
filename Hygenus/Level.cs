@@ -20,16 +20,11 @@ namespace Hygenus
         [DataMember]
         public PlayerEntity Player;
 
-        public Level(string name, Scene scene)
+        public Level(string name, Scene scene, FinishLine finish)
         {
             this.Name = name;
             this.Entities = scene.Entities;
-
-        }
-
-        public void Save()
-        {
-            
+            this.FinishLine = finish;
         }
     }
 }

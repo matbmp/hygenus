@@ -69,10 +69,14 @@ namespace Engine
                                     PolygonCollider.CheckCollision(collider1, collider2, out CollisionResult collisionResult);
                                     if (collisionResult != null)
                                     {
-                                        if(CollisionResolution != null)
-                                            CollisionResolution(collisionResult);
-                                        else
-                                            collisionResult.DefaultResolve();
+                                        if(collider1.collisionResolution && collider2.collisionResolution)
+                                        {
+                                            if (CollisionResolution != null)
+                                                CollisionResolution(collisionResult);
+                                            else
+                                                collisionResult.DefaultResolve();
+                                        }
+                                        
                                         collider1.OnCollidedWith(collider2);
                                         collider2.OnCollidedWith(collider1);
                                     }

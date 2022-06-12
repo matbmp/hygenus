@@ -17,17 +17,45 @@ namespace Engine
         private Rectangle output;
 
         // only one pass per effect supported
-        public HyperColorEffect RenderEffect;
+        public HyperColorEffect RenderEffect { get; set; }
         public Effect PostProcessEffect { get;  set; }
 
-        public Renderer(GraphicsDevice graphics, HyperColorEffect renderEffect, Rectangle output, int superResolution = 2)
+        public Renderer(GraphicsDevice graphics, HyperColorEffect renderEffect, Rectangle output, int superResolution = 3)
         {
             this.graphics = graphics;
             RenderEffect = renderEffect;
             renderTargetSpriteBatch = new SpriteBatch(graphics);
             this.output = output;
-            setSuperResolution(3);
+            setSuperResolution(superResolution);
         }
+        
+
+        public void Render(Scene scene)
+        {
+            if(PostProcessEffect != null)
+            {
+                graphics.SetRenderTarget(renderTarget);
+            }
+            graphics.BlendState = BlendState.AlphaBlend;
+            graphics.DepthStencilState = new DepthStencilState() { DepthBufferEnable = false };
+            RenderEffect.CurrentTechnique.Passes[0].Apply();
+            for (int i = 0; i < scene.Entities.Count; i++)
+            {
+                var entity = scene.Entities[i];
+                entity.Render(RenderEffect); // obecnie każdy element zmienia uniformy, do zaimplementowania batched rendering
+            }
+            if(PostProcessEffect != null)
+            {
+                graphics.BlendState = BlendState.Opaque;
+                graphics.DepthStencilState = new DepthStencilState() { DepthBufferEnable = false };
+                
+                graphics.SetRenderTarget(null);
+                renderTargetSpriteBatch.Begin(effect: PostProcessEffect);
+                renderTargetSpriteBatch.Draw(renderTarget, output, Color.White);
+                renderTargetSpriteBatch.End();
+            }
+        }
+
         /// <summary>
         /// Ustawienie większej pośredniej rozdzielczości renderowania niż docelowa
         /// </summary>
@@ -36,37 +64,12 @@ namespace Engine
         public void setSuperResolution(int superResolution)
         {
             if (superResolution <= 0) throw new ArgumentException("mnożnik rozdielczości musi być większy od 0");
-            renderTarget = new RenderTarget2D(graphics,
-                                               output.Width * superResolution,
-                                               output.Height * superResolution,
-                                               false,
-                                               graphics.PresentationParameters.BackBufferFormat,
-                                               DepthFormat.Depth24);
-        }
-
-        public void Render(Scene scene)
-        {
-            if(PostProcessEffect != null)
-            {
-                graphics.SetRenderTarget(renderTarget);
-            }
-            graphics.BlendState = BlendState.Opaque;
-            graphics.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
-            graphics.SamplerStates[0] = SamplerState.LinearWrap;
-            RenderEffect.CurrentTechnique.Passes[0].Apply();
-            for (int i = 0; i < scene.Entities.Count; i++)
-            {
-                var entity = scene.Entities[i];
-                entity.Render(RenderEffect);
-            }
-            if(PostProcessEffect != null)
-            {
-                PostProcessEffect.CurrentTechnique.Passes[0].Apply();
-                graphics.SetRenderTarget(null);
-                renderTargetSpriteBatch.Begin(effect: PostProcessEffect);
-                renderTargetSpriteBatch.Draw(renderTarget, output, Color.White);
-                renderTargetSpriteBatch.End();
-            }
+            renderTarget = new RenderTarget2D(graphicsDevice: graphics,
+                                                width: output.Width * superResolution,
+                                                output.Height * superResolution,
+                                                mipMap: false,
+                                                preferredFormat: SurfaceFormat.Color,
+                                                preferredDepthFormat: DepthFormat.Depth24);
         }
     }
 }

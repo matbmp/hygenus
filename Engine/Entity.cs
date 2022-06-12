@@ -29,6 +29,7 @@ namespace Engine
         public List<Component> Components;
         public List<IUpdatable> Updatables = new List<IUpdatable>();
         private List<IRenderable> Renderables = new List<IRenderable>();
+        protected int tick;
 
         public Entity(string name = null)
         {
@@ -46,6 +47,7 @@ namespace Engine
             DynamicsProvider dynamics = scene.DynamicsProvider;
             dynamics.ApplyVelocity(transformation, velocity);
             dynamics.ApplyAngularVelocity(transformation, angularVelocity);
+            tick++;
         }
 
         public void ApplyImpulse(Vector2 impulse, Vector2 contactVector)

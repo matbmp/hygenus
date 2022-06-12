@@ -9,13 +9,12 @@ namespace Hygenus
 {
     public class GameDataManager
     {
-        //string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"levels\");
         string path = @"levels\";
         public Level getLevel(string name)
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Level),
                 new List<Type> { typeof(FinishLine), typeof(PlayerEntity), typeof(HyperPolygonCollider) });
-            Stream stream = new FileStream(name, FileMode.Open, FileAccess.Read);
+            Stream stream = new FileStream(Path.Combine(path, name), FileMode.Open, FileAccess.Read);
             return (Level)dcs.ReadObject(stream);
         }
         public string[] getAllLevels()
